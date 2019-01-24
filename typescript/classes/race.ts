@@ -6,7 +6,7 @@ export default class Race{
   protected _participants:Participant[];
   static _distance:number = 10; //de type km
   static _finishCondition:boolean = false;
-  static _cycleCounter:number = 2;
+  static _cycleCounter:number = 1;
   static _rank:number = 1;
 
   constructor(){

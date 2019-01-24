@@ -85,6 +85,8 @@ myCanvas.style.border = canvasBorderWidth + 'px solid teal';
 
 //définition des valeurs pour la piste
 let pisteValeurBase:number = 80;
+let pistWidth:number = canvasWidth-pisteValeurBase*2;
+let pistHeight:number = canvasHeight-pisteValeurBase*2;
 let startRacePist:boolean = true;
 // $('body').css('background', 'red');
 //définition des valeurs des images des vehicules
@@ -92,7 +94,7 @@ let startRacePist:boolean = true;
 let baseImageDimensions:number = 20; //valeur de base pour pouvoir changer l'échelle des images d'un coup
 let imageDimensionsX:number = pisteValeurBase-(baseImageDimensions/2);
 let imageDimensionsY:number = pisteValeurBase-(baseImageDimensions/2);
-let raceDistanceVisuelle:number = (canvasWidth*2)+(canvasHeight*2);
+let raceDistanceVisuelle:number = (pistWidth*2)+(pistHeight*2);
 let startX:number = pisteValeurBase-(baseImageDimensions/2);
 let startY:number = pisteValeurBase-(baseImageDimensions/2);
 let limiteX:number = canvasWidth-(pisteValeurBase+(baseImageDimensions/2));
@@ -102,67 +104,50 @@ let limiteY:number = canvasHeight-(pisteValeurBase+(baseImageDimensions/2));
 let animate = () =>{
 
   for(let joueur of joueurs){
-    console.log("testing distance parcourue " + joueur.distance_parcourue);
+    // console.log("testing total distance " + Race._distance + "distance parcourue " + joueur.distance_parcourue);
+    //je trouve le rapport entre distance total et distance parcourue selon les classes
+    let tauxDistanceParcourue = Race._distance/joueur.distance_parcourue; //% de la route est accompli
+    //Je connais la distance total en px. Avec ce taux, je peux trouver où en est le véhicule
+    let distanceParcourueEnPx = raceDistanceVisuelle/tauxDistanceParcourue;
+
+
+    console.log("testing rate of advance in px "+distanceParcourueEnPx);
     if(joueur.raceStart){
-      joueur.dimensionX = 70;
-      joueur.dimensionY = 70;
+      joueur.dimensionX = startX;
+      joueur.dimensionY = startY;
       joueur.raceStart = false;
     }
     if(!Race._finishCondition){
+      //nettoyage du canvas
       myContext.clearRect(0, 0, myCanvas.width, myCanvas.height);
       //creation de la piste
-      myContext.rect(pisteValeurBase, pisteValeurBase, canvasWidth-pisteValeurBase*2,  canvasHeight-pisteValeurBase*2);
+      myContext.rect(pisteValeurBase, pisteValeurBase, pistWidth,  pistHeight);
+      console.log("testing pist values " + pistWidth + " and " + pistHeight);
       myContext.stroke();
-      //insertion des images pour les différents véhicules
+      //insertion des images pour les différents véhicules selon leur distanceParcourueEnPx
+      // console.log("testing the current position of " + joueur.vehicule.type + " which is " + distanceParcourueEnPx);
+      //le coin supérieur de la piste
+      if(distanceParcourueEnPx > 0 && distanceParcourueEnPx<pistWidth){
+        joueur.dimensionX = distanceParcourueEnPx+startX;
+        joueur.dimensionY = startY;
+      }
+      //le coin droit de la piste
+      if(distanceParcourueEnPx >= pistWidth && distanceParcourueEnPx<(pistWidth + pistHeight)){
+        joueur.dimensionX = pistWidth+startX;
+        joueur.dimensionY = (distanceParcourueEnPx-pistWidth)+startY;
+      }
+      //le coin inférieure de la piste
+      if(distanceParcourueEnPx >= (pistWidth + pistHeight) && distanceParcourueEnPx<((pistWidth*2) + pistHeight)){
+        joueur.dimensionY = pistHeight +startY;
+        joueur.dimensionX = (pistWidth-(distanceParcourueEnPx-(pistWidth + pistHeight)));
+      }
+      //le coin gauche de la piste
+      if(distanceParcourueEnPx >= ((pistWidth*2) + pistHeight) && distanceParcourueEnPx<((pistWidth*2) + (pistHeight*2))){
+        joueur.dimensionX = startX;
+        joueur.dimensionY = (pistHeight-(distanceParcourueEnPx-((pistWidth*2) + pistHeight)));
+      }
 
-      let localVitesse = (joueur.vehicule.vitesse_max)/7;
-    
-      // console.log("testing positions "+joueur.dimensionX + "and" + joueur.dimensionY);
-      // console.log("testing isX and isIncrease " + isX " et " + isIncrease);
-      //on commence par dimension X et augmentation
-      //si on est dans la dimension X et augmentation
-      if(joueur.isX && joueur.isIncrease){
-        //on augment x par la vitesse
-        joueur.dimensionX = joueur.dimensionX + localVitesse ;
-        //si en faisant cela, on atteint la limite, on passe  à la dimansion Y
-        if(joueur.dimensionX >= limiteX-localVitesse){
-          joueur.isX = false;
-          // joueur.dimensionX = joueur.dimensionX-(localVitesse);
-           joueur.dimensionX = limiteX-1
-        }
-      }
-      //si on est dans la dimension Y et augmentation
-      if(!joueur.isX && joueur.isIncrease){
-        //on augmente y par la vitesse
-        joueur.dimensionY = joueur.dimensionY + localVitesse;
-        //si en faisant cela, on atteint la limite, on passe à la dimansion X
-        if(joueur.dimensionY >= limiteY-localVitesse){
-          joueur.isX = true;
-          joueur.isIncrease = false;
-          // joueur.dimensionY = joueur.dimensionY-(localVitesse);
-          joueur.dimensionY = limiteY-1
-        }
-      }
-      //si on est dans la dimension X et on diminue
-      if(joueur.isX && !joueur.isIncrease){
-        joueur.dimensionX = joueur.dimensionX - localVitesse;
-        //si en faisant cela, on atteint le start, on passe  à la dimansion Y
-        if(joueur.dimensionX <= startX+localVitesse){
-          joueur.isX = false;
-          // joueur.dimensionX = joueur.dimensionX+(localVitesse);
-          joueur.dimensionX = startX+1
-        }
-      }
-      //si on est dans la dimension Y et on dinimue
-      if(!joueur.isX && !joueur.isIncrease){
-        joueur.dimensionY = joueur.dimensionY - localVitesse;
-        //si en faisant cela, on atteint le start, on passe  à la dimansion Y
-        if(joueur.dimensionY <= startY+localVitesse){
-          joueur.isX = true;
-          joueur.isIncrease = true;
-          joueur.dimensionY = startY+1
-        }
-      }
+
 
       tools.drawCanvasImage(myContext, joueur.vehicule.type, baseImageDimensions, joueur.dimensionX, joueur.dimensionY);
 

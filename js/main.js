@@ -58,11 +58,13 @@ define(["require", "exports", "./tools", "./classes/race", "./classes/moto", "./
     myContext.canvas.height = canvasHeight;
     myCanvas.style.border = canvasBorderWidth + 'px solid teal';
     var pisteValeurBase = 80;
+    var pistWidth = canvasWidth - pisteValeurBase * 2;
+    var pistHeight = canvasHeight - pisteValeurBase * 2;
     var startRacePist = true;
     var baseImageDimensions = 20;
     var imageDimensionsX = pisteValeurBase - (baseImageDimensions / 2);
     var imageDimensionsY = pisteValeurBase - (baseImageDimensions / 2);
-    var raceDistanceVisuelle = (canvasWidth * 2) + (canvasHeight * 2);
+    var raceDistanceVisuelle = (pistWidth * 2) + (pistHeight * 2);
     var startX = pisteValeurBase - (baseImageDimensions / 2);
     var startY = pisteValeurBase - (baseImageDimensions / 2);
     var limiteX = canvasWidth - (pisteValeurBase + (baseImageDimensions / 2));
@@ -70,46 +72,34 @@ define(["require", "exports", "./tools", "./classes/race", "./classes/moto", "./
     var animate = function () {
         for (var _i = 0, joueurs_1 = exports.joueurs; _i < joueurs_1.length; _i++) {
             var joueur = joueurs_1[_i];
-            console.log("testing distance parcourue " + joueur.distance_parcourue);
+            var tauxDistanceParcourue = race_1.default._distance / joueur.distance_parcourue;
+            var distanceParcourueEnPx = raceDistanceVisuelle / tauxDistanceParcourue;
+            console.log("testing rate of advance in px " + distanceParcourueEnPx);
             if (joueur.raceStart) {
-                joueur.dimensionX = 70;
-                joueur.dimensionY = 70;
+                joueur.dimensionX = startX;
+                joueur.dimensionY = startY;
                 joueur.raceStart = false;
             }
             if (!race_1.default._finishCondition) {
                 myContext.clearRect(0, 0, myCanvas.width, myCanvas.height);
-                myContext.rect(pisteValeurBase, pisteValeurBase, canvasWidth - pisteValeurBase * 2, canvasHeight - pisteValeurBase * 2);
+                myContext.rect(pisteValeurBase, pisteValeurBase, pistWidth, pistHeight);
+                console.log("testing pist values " + pistWidth + " and " + pistHeight);
                 myContext.stroke();
-                var localVitesse = (joueur.vehicule.vitesse_max) / 7;
-                if (joueur.isX && joueur.isIncrease) {
-                    joueur.dimensionX = joueur.dimensionX + localVitesse;
-                    if (joueur.dimensionX >= limiteX - localVitesse) {
-                        joueur.isX = false;
-                        joueur.dimensionX = limiteX - 1;
-                    }
+                if (distanceParcourueEnPx > 0 && distanceParcourueEnPx < pistWidth) {
+                    joueur.dimensionX = distanceParcourueEnPx + startX;
+                    joueur.dimensionY = startY;
                 }
-                if (!joueur.isX && joueur.isIncrease) {
-                    joueur.dimensionY = joueur.dimensionY + localVitesse;
-                    if (joueur.dimensionY >= limiteY - localVitesse) {
-                        joueur.isX = true;
-                        joueur.isIncrease = false;
-                        joueur.dimensionY = limiteY - 1;
-                    }
+                if (distanceParcourueEnPx >= pistWidth && distanceParcourueEnPx < (pistWidth + pistHeight)) {
+                    joueur.dimensionX = pistWidth + startX;
+                    joueur.dimensionY = (distanceParcourueEnPx - pistWidth) + startY;
                 }
-                if (joueur.isX && !joueur.isIncrease) {
-                    joueur.dimensionX = joueur.dimensionX - localVitesse;
-                    if (joueur.dimensionX <= startX + localVitesse) {
-                        joueur.isX = false;
-                        joueur.dimensionX = startX + 1;
-                    }
+                if (distanceParcourueEnPx >= (pistWidth + pistHeight) && distanceParcourueEnPx < ((pistWidth * 2) + pistHeight)) {
+                    joueur.dimensionY = pistHeight + startY;
+                    joueur.dimensionX = (pistWidth - (distanceParcourueEnPx - (pistWidth + pistHeight)));
                 }
-                if (!joueur.isX && !joueur.isIncrease) {
-                    joueur.dimensionY = joueur.dimensionY - localVitesse;
-                    if (joueur.dimensionY <= startY + localVitesse) {
-                        joueur.isX = true;
-                        joueur.isIncrease = true;
-                        joueur.dimensionY = startY + 1;
-                    }
+                if (distanceParcourueEnPx >= ((pistWidth * 2) + pistHeight) && distanceParcourueEnPx < ((pistWidth * 2) + (pistHeight * 2))) {
+                    joueur.dimensionX = startX;
+                    joueur.dimensionY = (pistHeight - (distanceParcourueEnPx - ((pistWidth * 2) + pistHeight)));
                 }
                 tools.drawCanvasImage(myContext, joueur.vehicule.type, baseImageDimensions, joueur.dimensionX, joueur.dimensionY);
             }

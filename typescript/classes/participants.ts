@@ -4,8 +4,8 @@ export default class Participant{
   protected _name:string;
   protected _vehicule:Vehicle;
   protected _distance_parcourue:number = 0; //de type km
-  protected _dimensionX:number = 60;
-  protected _dimensionY:number = 60;
+  protected _dimensionX:number = 0;
+  protected _dimensionY:number = 0;
   raceStart:boolean = true;
   isIncrease:boolean = true;
   isX:boolean = true;

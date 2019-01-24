@@ -4,8 +4,8 @@ define(["require", "exports"], function (require, exports) {
     var Participant = (function () {
         function Participant(name, vehicule) {
             this._distance_parcourue = 0;
-            this._dimensionX = 60;
-            this._dimensionY = 60;
+            this._dimensionX = 0;
+            this._dimensionY = 0;
             this.raceStart = true;
             this.isIncrease = true;
             this.isX = true;

@@ -58,7 +58,7 @@ define(["require", "exports", "../main", "../tools"], function (require, exports
         };
         Race._distance = 10;
         Race._finishCondition = false;
-        Race._cycleCounter = 2;
+        Race._cycleCounter = 1;
         Race._rank = 1;
         return Race;
     }());
