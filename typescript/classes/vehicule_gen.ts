@@ -1,0 +1,115 @@
+import Race from "./race";
+import {timeoutsArray} from "../main";
+import tools = require("../tools");
+
+export default class Vehicule{
+  protected _hp:number = 0; //de type "puissance en cheveux"
+  protected _drag:number = 0; // de type kg
+  protected _type:string;
+  protected _types_accepted = {
+    voiture : "voiture",
+    moto : "moto",
+    camion : "camion",
+  };
+  protected _capacite_du_reservoir:number; //de type litre
+  protected _niveau_de_carburant:number = 0; //de type litre
+  protected _son_klaxonne:string;
+  protected _vitesse_max:number; //de type km par heure
+  protected _consommation:number; //litre per km
+  protected _vehiculeCondition:boolean = false; //est-ce que le véhicule est en état de rouler
+  isIncrease:boolean = true;
+  isX:boolean = true;
+  static _start_condition:number = 0; //je vérifie que les réservoirs sont complets avant de commencer. Cela devient 3 quand  les 3 vehicules ont rempli leurs réservoir
+  constructor(power:number, weight:number){
+      this.power = power;
+      this.weight = weight;
+  }
+
+  get power():number{
+    return this._hp;
+  }
+  get weight():number{
+    return this._drag;
+  }
+  get capacite_du_reservoir():number{
+    return this._capacite_du_reservoir
+  }
+  get niveau_de_carburant():number{
+    return this._niveau_de_carburant;
+  }
+  get son_klaxonne():string{
+    return this._son_klaxonne;
+  }
+  get type():string{
+    return this._type;
+  }
+  get start_condition():number{
+    return Vehicule._start_condition;
+  }
+  get vitesse_max():number{
+    return this._vitesse_max;
+  }
+  get consommation():number{
+    return this._consommation;
+  }
+  get vehiculeCondition():boolean{
+    return this._vehiculeCondition;
+  }
+  set power(power:number){
+    this._hp = power;
+  }
+  set weight(weight:number){
+    this._drag = weight;
+  }
+  set niveau_de_carburant(carburant:number){
+    this._niveau_de_carburant = carburant;
+  }
+  set capacite_du_reservoir(reservoir:number){
+    this._capacite_du_reservoir = reservoir;
+  }
+  set type(type:string){
+    this._type = type;
+  }
+  set son_klaxonne(son:string){
+    this._son_klaxonne = son;
+  }
+  set start_condition(counter:number){
+    Vehicule._start_condition = counter;
+  }
+  set vitesse_max(vitesse:number){
+    this._vitesse_max = vitesse;
+  }
+  set consommation(consommation:number){
+    this._consommation = consommation;
+  }
+  set vehiculeCondition(condition:boolean){
+    this._vehiculeCondition = condition;
+  }
+  static increment_start_condition(){
+    Vehicule._start_condition++;
+  }
+  pit_stop():void{
+    //je détermine le montant de carburant nécessaire pour faire le pleine
+    let besoinCarburant:number = this.capacite_du_reservoir - this.niveau_de_carburant;
+    //j'assume que la vitesse de la pompe de carburant est de 10 litre par seconde
+    //je trouve combien de second il me faut pour faire le pleine
+    let besoinTemps:number = besoinCarburant/10;
+    //je klaxonne quand la réservoir est rempli
+    timeoutsArray.push(setTimeout(this.mettre_du_carburant, besoinTemps*1000, this));
+  }
+  mettre_du_carburant(vehicule:Vehicule):void{
+    // console.log("testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest");
+    vehicule.niveau_de_carburant = vehicule._capacite_du_reservoir;
+    Vehicule.increment_start_condition();
+    vehicule.klaxonne(vehicule);
+
+  }
+  klaxonne(vehicule:Vehicule):void{
+    tools.show_message(`${vehicule.type} dit que c'est bon : ${vehicule._son_klaxonne}, Niveau de carburant = ${vehicule.niveau_de_carburant}`);
+    vehicule.vehiculeCondition = true; //vehicule est en etat de circuler
+    // tools.show_message(vehicule.start_condition);
+    if(vehicule.start_condition===3){
+      let race = new Race();
+    }
+  }
+}

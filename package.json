@@ -1,0 +1,19 @@
+{
+  "name": "20190116_tsc_poo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "js/main.js",
+  "scripts": {
+    "test": "test",
+    "tsc_amd": "tsc --module amd typescript/main.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/jquery": "^3.3.29",
+    "@types/requirejs": "^2.1.31",
+    "jquery": "^3.3.1",
+    "requirejs": "^2.3.6",
+    "typescript": "^1.8.10"
+  }
+}
