@@ -54,12 +54,12 @@ let intervalRaceEnd:any = setInterval(function(){
         clearTimeout(timeoutsArray[i]);
 
     }
-    console.log(timeoutsArray.length);
+    // console.log(timeoutsArray.length);
     timeoutsArray.length = 0;
-        console.log(timeoutsArray.length);
-        stopInterval();
+        // console.log(timeoutsArray.length);
+    stopInterval();
   }
-}, 1);
+}, 10);
 let stopInterval = () =>{
   clearInterval(intervalRaceEnd);
 }
@@ -88,6 +88,7 @@ let pisteValeurBase:number = 80;
 let pistWidth:number = canvasWidth-pisteValeurBase*2;
 let pistHeight:number = canvasHeight-pisteValeurBase*2;
 let startRacePist:boolean = true;
+let visualCounter: number = 3;
 // $('body').css('background', 'red');
 //définition des valeurs des images des vehicules
 // let myContext2 = myCanvas.getContext("2d");
@@ -111,20 +112,22 @@ let animate = () =>{
     let distanceParcourueEnPx = raceDistanceVisuelle/tauxDistanceParcourue;
 
 
-    console.log("testing rate of advance in px "+distanceParcourueEnPx);
-    if(joueur.raceStart){
-      joueur.dimensionX = startX;
-      joueur.dimensionY = startY;
-      joueur.raceStart = false;
-    }
+  // console.log("testing rate of advance in px "+distanceParcourueEnPx);
+
+
     if(!Race._finishCondition){
+
       //nettoyage du canvas
       myContext.clearRect(0, 0, myCanvas.width, myCanvas.height);
       //creation de la piste
+
       myContext.rect(pisteValeurBase, pisteValeurBase, pistWidth,  pistHeight);
-      console.log("testing pist values " + pistWidth + " and " + pistHeight);
+      // console.log("testing pist values " + pistWidth + " and " + pistHeight);
       myContext.stroke();
+
+
       //insertion des images pour les différents véhicules selon leur distanceParcourueEnPx
+
       // console.log("testing the current position of " + joueur.vehicule.type + " which is " + distanceParcourueEnPx);
       //le coin supérieur de la piste
       if(distanceParcourueEnPx > 0 && distanceParcourueEnPx<pistWidth){
@@ -148,11 +151,27 @@ let animate = () =>{
       }
 
 
-
+      //implementation des pit stops sur le canvas
+      // console.log("testing if I can manage this with vehiculeCondition " + joueur.vehicule.vehiculeCondition + " for " + joueur.vehicule.type);
+      if(! joueur.vehicule.vehiculeCondition){
+        tools.drawCanvasImage(myContext, "gas", baseImageDimensions*2, joueur.dimensionX, joueur.dimensionY-baseImageDimensions*2);
+      }else{
+        joueur.raceStart = true;
+      }
+      // myContext.font = "20px Georgia";
+      // myContext.fillText("3", canvasWidth/2, canvasHeight/2);
       tools.drawCanvasImage(myContext, joueur.vehicule.type, baseImageDimensions, joueur.dimensionX, joueur.dimensionY);
 
     }
+    if(joueur.raceStart){
+      //implementation des messages sur écran (klaxonne et race start finish)
+    
 
+      // console.log("testing if it enters here " + joueur.vehicule.start_condition);
+      joueur.dimensionX = startX;
+      joueur.dimensionY = startY;
+      joueur.raceStart = false;
+    }
       // console.log("testing positions for "+joueur.vehicule.type + "="+joueur.dimensionX + "and" + joueur.dimensionY);
   }
 

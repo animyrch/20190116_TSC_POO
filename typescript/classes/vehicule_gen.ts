@@ -109,7 +109,13 @@ export default class Vehicule{
     vehicule.vehiculeCondition = true; //vehicule est en etat de circuler
     // tools.show_message(vehicule.start_condition);
     if(vehicule.start_condition===3){
-      let race = new Race();
+      console.log("testing when do I enter here");
+      //staring the race in 3 seconds
+      vehicule.start_condition = 10;
+      let countdown = setTimeout(this.createRace, 1000);
     }
+  }
+  createRace():any{
+    let race = new Race();
   }
 }

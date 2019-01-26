@@ -37,12 +37,10 @@ define(["require", "exports", "./tools", "./classes/race", "./classes/moto", "./
             for (var i = 0; i < exports.timeoutsArray.length; i++) {
                 clearTimeout(exports.timeoutsArray[i]);
             }
-            console.log(exports.timeoutsArray.length);
             exports.timeoutsArray.length = 0;
-            console.log(exports.timeoutsArray.length);
             stopInterval();
         }
-    }, 1);
+    }, 10);
     var stopInterval = function () {
         clearInterval(intervalRaceEnd);
     };
@@ -61,6 +59,7 @@ define(["require", "exports", "./tools", "./classes/race", "./classes/moto", "./
     var pistWidth = canvasWidth - pisteValeurBase * 2;
     var pistHeight = canvasHeight - pisteValeurBase * 2;
     var startRacePist = true;
+    var visualCounter = 3;
     var baseImageDimensions = 20;
     var imageDimensionsX = pisteValeurBase - (baseImageDimensions / 2);
     var imageDimensionsY = pisteValeurBase - (baseImageDimensions / 2);
@@ -74,16 +73,9 @@ define(["require", "exports", "./tools", "./classes/race", "./classes/moto", "./
             var joueur = joueurs_1[_i];
             var tauxDistanceParcourue = race_1.default._distance / joueur.distance_parcourue;
             var distanceParcourueEnPx = raceDistanceVisuelle / tauxDistanceParcourue;
-            console.log("testing rate of advance in px " + distanceParcourueEnPx);
-            if (joueur.raceStart) {
-                joueur.dimensionX = startX;
-                joueur.dimensionY = startY;
-                joueur.raceStart = false;
-            }
             if (!race_1.default._finishCondition) {
                 myContext.clearRect(0, 0, myCanvas.width, myCanvas.height);
                 myContext.rect(pisteValeurBase, pisteValeurBase, pistWidth, pistHeight);
-                console.log("testing pist values " + pistWidth + " and " + pistHeight);
                 myContext.stroke();
                 if (distanceParcourueEnPx > 0 && distanceParcourueEnPx < pistWidth) {
                     joueur.dimensionX = distanceParcourueEnPx + startX;
@@ -101,7 +93,18 @@ define(["require", "exports", "./tools", "./classes/race", "./classes/moto", "./
                     joueur.dimensionX = startX;
                     joueur.dimensionY = (pistHeight - (distanceParcourueEnPx - ((pistWidth * 2) + pistHeight)));
                 }
+                if (!joueur.vehicule.vehiculeCondition) {
+                    tools.drawCanvasImage(myContext, "gas", baseImageDimensions * 2, joueur.dimensionX, joueur.dimensionY - baseImageDimensions * 2);
+                }
+                else {
+                    joueur.raceStart = true;
+                }
                 tools.drawCanvasImage(myContext, joueur.vehicule.type, baseImageDimensions, joueur.dimensionX, joueur.dimensionY);
+            }
+            if (joueur.raceStart) {
+                joueur.dimensionX = startX;
+                joueur.dimensionY = startY;
+                joueur.raceStart = false;
             }
         }
     };

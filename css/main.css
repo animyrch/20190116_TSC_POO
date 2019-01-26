@@ -1,0 +1,11 @@
+*{
+  border: 1px solid red;
+}
+div{
+  float: right;
+  clear: right;
+
+}
+h2{
+  text-align: center;
+}
