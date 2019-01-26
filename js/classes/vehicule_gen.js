@@ -134,8 +134,13 @@ define(["require", "exports", "./race", "../main", "../tools"], function (requir
             tools.show_message(vehicule.type + " dit que c'est bon : " + vehicule._son_klaxonne + ", Niveau de carburant = " + vehicule.niveau_de_carburant);
             vehicule.vehiculeCondition = true;
             if (vehicule.start_condition === 3) {
-                var race = new race_1.default();
+                console.log("testing when do I enter here");
+                vehicule.start_condition = 10;
+                var countdown = setTimeout(this.createRace, 1000);
             }
+        };
+        Vehicule.prototype.createRace = function () {
+            var race = new race_1.default();
         };
         Vehicule._start_condition = 0;
         return Vehicule;

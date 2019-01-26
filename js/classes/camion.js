@@ -18,10 +18,10 @@ define(["require", "exports", "../tools", "./vehicule_gen"], function (require, 
         __extends(Camion, _super);
         function Camion(power, weight) {
             var _this = _super.call(this, power, weight) || this;
-            _this.capacite_du_reservoir = 200;
-            _this.niveau_de_carburant = 150;
-            _this.vitesse_max = 80;
-            _this.consommation = 30;
+            _this.capacite_du_reservoir = 400;
+            _this.niveau_de_carburant = 200;
+            _this.vitesse_max = 100;
+            _this.consommation = 15;
             _this.type = _this._types_accepted.camion;
             _this.son_klaxonne = "Abouuuuah!";
             tools.show_message("A wild " + _this._type + " appears");
