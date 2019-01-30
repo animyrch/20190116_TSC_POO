@@ -8,17 +8,21 @@
 <body>
 
 
-
+<div class="canvas_container">
   <canvas id="myCanvas">
       Votre navigateur ne supporte pas canvas.
   </canvas>
   <!-- <script type="text/javascript" src="js/classes/*"> </script> -->
+</div>
 
-
-  <div>
-    <div>START</div><div>STOP</div><div>RESTART</div>
-    <div>STATS</div>
+<div class="user_interface_container">
+  <input class="btn btn-primary" type="button" value="Start">
+  <input class="btn btn-primary" type="reset" value="Stop">
+  <input class="btn btn-primary" type="reset" value="Restart">
+    <h3>STATS</h3>
+    <div class="vehicule_details"></div>
   </div>
+</div>
 
   <!-- <script src="js/lib/require.js" data-main="js/jquery.js"></script> -->
   <script src="js/lib/require.js" data-main="js/main.js"></script>

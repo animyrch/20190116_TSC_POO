@@ -1,11 +1,14 @@
 *{
   border: 1px solid red;
 }
-div{
+.canvas_container{
   float: right;
   clear: right;
 
 }
-h2{
+.user_interface_container{
+    float:left;
+}
+h3{
   text-align: center;
 }

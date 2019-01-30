@@ -19,7 +19,7 @@ define(["require", "exports", "../tools", "./vehicule_gen"], function (require, 
         function Camion(power, weight) {
             var _this = _super.call(this, power, weight) || this;
             _this.capacite_du_reservoir = 400;
-            _this.niveau_de_carburant = 200;
+            _this.niveau_de_carburant = 300;
             _this.vitesse_max = 100;
             _this.consommation = 15;
             _this.type = _this._types_accepted.camion;

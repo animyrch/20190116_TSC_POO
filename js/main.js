@@ -1,4 +1,4 @@
-define(["require", "exports", "./tools", "./classes/race", "./classes/moto", "./classes/voiture", "./classes/camion", "./classes/participants"], function (require, exports, tools, race_1, moto_1, voiture_1, camion_1, participants_1) {
+define(["require", "exports", "./tools", "./classes/race", "./classes/moto", "./classes/voiture", "./classes/camion", "./classes/participants", "./classes/canvasManager", "./classes/pistForCanvas"], function (require, exports, tools, race_1, moto_1, voiture_1, camion_1, participants_1, canvasManager_1, pistForCanvas_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     tools.show_message("Testing use of separate files");
@@ -44,67 +44,59 @@ define(["require", "exports", "./tools", "./classes/race", "./classes/moto", "./
     var stopInterval = function () {
         clearInterval(intervalRaceEnd);
     };
-    var myCanvas = null;
-    var myContext = null;
-    myCanvas = document.getElementById("myCanvas");
-    myContext = myCanvas.getContext("2d");
-    tools.manageCanvasErrors(myCanvas, myContext);
-    var canvasWidth = 800;
-    var canvasHeight = 500;
-    var canvasBorderWidth = 2;
-    myContext.canvas.width = canvasWidth;
-    myContext.canvas.height = canvasHeight;
-    myCanvas.style.border = canvasBorderWidth + 'px solid teal';
+    var myCanvas = document.getElementById("myCanvas");
+    var myContext = myCanvas.getContext("2d");
+    exports.canvasManager = new canvasManager_1.default(myCanvas, myContext);
+    exports.canvasManager.manageCanvasErrors();
+    var canvasWidth = exports.canvasManager.width;
+    var canvasHeight = exports.canvasManager.height;
+    var pistForCanvas = new pistForCanvas_1.default();
+    var startRacePist = true;
+    var visualCounter = 3;
     var pisteValeurBase = 80;
     var pistWidth = canvasWidth - pisteValeurBase * 2;
     var pistHeight = canvasHeight - pisteValeurBase * 2;
-    var startRacePist = true;
-    var visualCounter = 3;
-    var baseImageDimensions = 20;
-    var imageDimensionsX = pisteValeurBase - (baseImageDimensions / 2);
-    var imageDimensionsY = pisteValeurBase - (baseImageDimensions / 2);
-    var raceDistanceVisuelle = (pistWidth * 2) + (pistHeight * 2);
-    var startX = pisteValeurBase - (baseImageDimensions / 2);
-    var startY = pisteValeurBase - (baseImageDimensions / 2);
-    var limiteX = canvasWidth - (pisteValeurBase + (baseImageDimensions / 2));
-    var limiteY = canvasHeight - (pisteValeurBase + (baseImageDimensions / 2));
+    for (var _i = 0, joueurs_1 = exports.joueurs; _i < joueurs_1.length; _i++) {
+        var joueur = joueurs_1[_i];
+        joueur.dimensionX = Math.floor(pistForCanvas.startPositionX * 0.5);
+        joueur.dimensionY = pistForCanvas.startPositionY;
+    }
     var animate = function () {
-        for (var _i = 0, joueurs_1 = exports.joueurs; _i < joueurs_1.length; _i++) {
-            var joueur = joueurs_1[_i];
+        for (var _i = 0, joueurs_2 = exports.joueurs; _i < joueurs_2.length; _i++) {
+            var joueur = joueurs_2[_i];
             var tauxDistanceParcourue = race_1.default._distance / joueur.distance_parcourue;
-            var distanceParcourueEnPx = raceDistanceVisuelle / tauxDistanceParcourue;
+            var distanceParcourueEnPx = pistForCanvas.getPistLength4Corners() / tauxDistanceParcourue;
             if (!race_1.default._finishCondition) {
                 myContext.clearRect(0, 0, myCanvas.width, myCanvas.height);
                 myContext.rect(pisteValeurBase, pisteValeurBase, pistWidth, pistHeight);
                 myContext.stroke();
-                if (distanceParcourueEnPx > 0 && distanceParcourueEnPx < pistWidth) {
-                    joueur.dimensionX = distanceParcourueEnPx + startX;
-                    joueur.dimensionY = startY;
+                if (pistForCanvas.isTopCorner(distanceParcourueEnPx)) {
+                    joueur.dimensionX = distanceParcourueEnPx + pistForCanvas.startPositionX;
+                    joueur.dimensionY = pistForCanvas.startPositionY;
                 }
-                if (distanceParcourueEnPx >= pistWidth && distanceParcourueEnPx < (pistWidth + pistHeight)) {
-                    joueur.dimensionX = pistWidth + startX;
-                    joueur.dimensionY = (distanceParcourueEnPx - pistWidth) + startY;
+                if (pistForCanvas.isRightCorner(distanceParcourueEnPx)) {
+                    joueur.dimensionX = pistForCanvas.endPositionX;
+                    joueur.dimensionY = (distanceParcourueEnPx - pistWidth) + pistForCanvas.startPositionY;
                 }
-                if (distanceParcourueEnPx >= (pistWidth + pistHeight) && distanceParcourueEnPx < ((pistWidth * 2) + pistHeight)) {
-                    joueur.dimensionY = pistHeight + startY;
+                if (pistForCanvas.isBottomCorner(distanceParcourueEnPx)) {
+                    joueur.dimensionY = pistForCanvas.endPositionY;
                     joueur.dimensionX = (pistWidth - (distanceParcourueEnPx - (pistWidth + pistHeight)));
                 }
-                if (distanceParcourueEnPx >= ((pistWidth * 2) + pistHeight) && distanceParcourueEnPx < ((pistWidth * 2) + (pistHeight * 2))) {
-                    joueur.dimensionX = startX;
+                if (pistForCanvas.isLeftCorner(distanceParcourueEnPx)) {
+                    joueur.dimensionX = pistForCanvas.startPositionX;
                     joueur.dimensionY = (pistHeight - (distanceParcourueEnPx - ((pistWidth * 2) + pistHeight)));
                 }
                 if (!joueur.vehicule.vehiculeCondition) {
-                    tools.drawCanvasImage(myContext, "gas", baseImageDimensions * 2, joueur.dimensionX, joueur.dimensionY - baseImageDimensions * 2);
+                    exports.canvasManager.drawCanvasImage(myContext, "gas", pistForCanvas.baseImageDimensions, joueur.dimensionX, joueur.dimensionY - pistForCanvas.baseImageDimensions);
                 }
                 else {
                     joueur.raceStart = true;
                 }
-                tools.drawCanvasImage(myContext, joueur.vehicule.type, baseImageDimensions, joueur.dimensionX, joueur.dimensionY);
+                exports.canvasManager.drawCanvasImage(myContext, joueur.vehicule.type, pistForCanvas.baseImageDimensions, joueur.dimensionX, joueur.dimensionY);
             }
             if (joueur.raceStart) {
-                joueur.dimensionX = startX;
-                joueur.dimensionY = startY;
-                joueur.raceStart = false;
+                joueur.dimensionX = pistForCanvas.startPositionX;
+                joueur.dimensionY = pistForCanvas.startPositionY;
             }
         }
     };

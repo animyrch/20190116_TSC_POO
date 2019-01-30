@@ -24,8 +24,9 @@ export default class Race{
   static finishRace(participants:Participant[]):void{
     for(let participant of participants){
       if(participant.distance_parcourue >= Race._distance*Race._cycleCounter){
-          tools.show_message(`${participant.distance_parcourue}`);
-            tools.show_message(`${Race._distance*Race._cycleCounter}`);
+          /*tools.show_message(`${participant.distance_parcourue}`);
+          tools.show_message(`${Race._distance*Race._cycleCounter}`);
+          */
           Race._finishCondition = true;
 
 
@@ -48,14 +49,19 @@ export default class Race{
 
       let currentStep:any = setTimeout(function(){
         for(let participant of participants){
-          if(participant.vehicule.vehiculeCondition){
-            console.log(participant.vehicule.niveau_de_carburant);
+          if(participant.vehicule.vehiculeCondition){/*
+            console.log(participant.vehicule.niveau_de_carburant);*/
               //je calcule la distance qu'il aurait parcourue en une seconde
             let distanceParSeconde:number = participant.vehicule.vitesse_max/360;
+            //j'ajoute la distance parcourue en une seconde à la distance parcourue en total
             participant.distance_parcourue = distanceParSeconde;
+            //je déduis la consommation de base du niveau de carburant
             participant.vehicule.niveau_de_carburant -= participant.vehicule.consommation;
+            //si, selon la consommation de base, à la prochaine boucle, le vehicule n'aura plus de carburant, je fais un pit-stop
             if(participant.vehicule.niveau_de_carburant -  participant.vehicule.consommation <= 0){
+              //je modifie le répère du vehicule comme étant "pas dans l'état de conduire"
               participant.vehicule.vehiculeCondition = false;
+
               participant.vehicule.pit_stop();
             }
           }
@@ -68,11 +74,16 @@ export default class Race{
           Race.finishRace(participants);
         }
 
+        tools.show_message(`testing the creation of each timeout ${counter}`);
+        counter++;
       }, 1000);
       timeoutsArray.push(currentStep);
     }
 
-
+  static createRace():void{
+    let race = new Race();
+  }
 
 
   }
+let counter:number = 0;

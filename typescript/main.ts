@@ -5,6 +5,8 @@ import Moto from "./classes/moto";
 import Voiture from "./classes/voiture";
 import Camion from "./classes/camion";
 import Participant from "./classes/participants";
+import CanvasManager from "./classes/canvasManager";
+import PistForCanvas from "./classes/pistForCanvas";
 // declare var $:any;
 import $ = require("jquery");
 //import {Moto, Voiture, Camion} from "./classes/vehicule_types"; //on peut importer plusieurs elements d'un autre fichier mais il est meilleur de faire un fichier par class meme si ce sont des sous-classes
@@ -60,6 +62,7 @@ let intervalRaceEnd:any = setInterval(function(){
     stopInterval();
   }
 }, 10);
+
 let stopInterval = () =>{
   clearInterval(intervalRaceEnd);
 }
@@ -67,49 +70,44 @@ let stopInterval = () =>{
 
 // ============= PARTIE VISUELLE (CANVAS) ================//
 //je commence la visualisation de la course avec l'API canvas
-let myCanvas:any = null;
-let myContext:any = null;
-myCanvas = document.getElementById("myCanvas");
-myContext = myCanvas.getContext("2d");
-tools.manageCanvasErrors(myCanvas, myContext);
+let myCanvas:any = document.getElementById("myCanvas");
+let myContext:any = myCanvas.getContext("2d");
 
-let canvasWidth:number = 800;
-let canvasHeight:number = 500;
-let canvasBorderWidth:number = 2;
-myContext.canvas.width = canvasWidth;
-myContext.canvas.height = canvasHeight;
-myCanvas.style.border = canvasBorderWidth + 'px solid teal';
+// j"instantie la classe CanvasManager pour manipuler le canvas 
+export let canvasManager = new CanvasManager(myCanvas, myContext);
+canvasManager.manageCanvasErrors();
+let canvasWidth:number = canvasManager.width;
+let canvasHeight:number = canvasManager.height;
+// tests pour integration de jquery dans typescript
 // let body:any = $('body');
 // $('body').csss('background', "red"); //cela donne erreur à la compilation car nous avons installé les typings pour jquery et node sait que csss n'exite pas pour $
 // body.css('background', "red"); //cela ne donne pas erreur à la compilation car nous ciblons pas directement un objet $ mais un variable. Par contre, la navigateur ne donnerait erreur
 
+//j'instantie la classe PistForCanvas pour manipuler la piste
+let pistForCanvas = new PistForCanvas();
 //définition des valeurs pour la piste
+
+let startRacePist:boolean = true;
+let visualCounter: number = 3;
+
 let pisteValeurBase:number = 80;
 let pistWidth:number = canvasWidth-pisteValeurBase*2;
 let pistHeight:number = canvasHeight-pisteValeurBase*2;
-let startRacePist:boolean = true;
-let visualCounter: number = 3;
-// $('body').css('background', 'red');
-//définition des valeurs des images des vehicules
-// let myContext2 = myCanvas.getContext("2d");
-let baseImageDimensions:number = 20; //valeur de base pour pouvoir changer l'échelle des images d'un coup
-let imageDimensionsX:number = pisteValeurBase-(baseImageDimensions/2);
-let imageDimensionsY:number = pisteValeurBase-(baseImageDimensions/2);
-let raceDistanceVisuelle:number = (pistWidth*2)+(pistHeight*2);
-let startX:number = pisteValeurBase-(baseImageDimensions/2);
-let startY:number = pisteValeurBase-(baseImageDimensions/2);
-let limiteX:number = canvasWidth-(pisteValeurBase+(baseImageDimensions/2));
-let limiteY:number = canvasHeight-(pisteValeurBase+(baseImageDimensions/2));
 
+//placement des joueurs à la position avant la ligne de start (moitié de la distance entre le coin gauche supérieur de la piste et la bordure gauche du canvas)
+for(let joueur of joueurs){
+   joueur.dimensionX = Math.floor(pistForCanvas.startPositionX * 0.5);
+   joueur.dimensionY = pistForCanvas.startPositionY;
+ }
 //animation des images
 let animate = () =>{
 
   for(let joueur of joueurs){
     // console.log("testing total distance " + Race._distance + "distance parcourue " + joueur.distance_parcourue);
-    //je trouve le rapport entre distance total et distance parcourue selon les classes
-    let tauxDistanceParcourue = Race._distance/joueur.distance_parcourue; //% de la route est accompli
-    //Je connais la distance total en px. Avec ce taux, je peux trouver où en est le véhicule
-    let distanceParcourueEnPx = raceDistanceVisuelle/tauxDistanceParcourue;
+    //je trouve le rapport entre distance total de Race et distance parcourue de joueur
+    let tauxDistanceParcourue:number = Race._distance/joueur.distance_parcourue; //% de la route est accompli
+    //Je connais la distance total en px (getPistLength4Corners()). Avec ce taux, je peux trouver où en est le véhicule
+    let distanceParcourueEnPx:number = pistForCanvas.getPistLength4Corners()/tauxDistanceParcourue;
 
 
   // console.log("testing rate of advance in px "+distanceParcourueEnPx);
@@ -120,62 +118,56 @@ let animate = () =>{
       //nettoyage du canvas
       myContext.clearRect(0, 0, myCanvas.width, myCanvas.height);
       //creation de la piste
-
       myContext.rect(pisteValeurBase, pisteValeurBase, pistWidth,  pistHeight);
       // console.log("testing pist values " + pistWidth + " and " + pistHeight);
       myContext.stroke();
 
 
-      //insertion des images pour les différents véhicules selon leur distanceParcourueEnPx
-
+      //calcul de correspondance entre distance parcourue en pixel et le placemet sur le canvas
       // console.log("testing the current position of " + joueur.vehicule.type + " which is " + distanceParcourueEnPx);
       //le coin supérieur de la piste
-      if(distanceParcourueEnPx > 0 && distanceParcourueEnPx<pistWidth){
-        joueur.dimensionX = distanceParcourueEnPx+startX;
-        joueur.dimensionY = startY;
+      if(pistForCanvas.isTopCorner(distanceParcourueEnPx)){
+        //je peux integrer distanceParcourueEnPx au sein de joueur (participant) et
+        //je peux extraire le calcul de l'avancement dans pistForCanvas
+        joueur.dimensionX = distanceParcourueEnPx+pistForCanvas.startPositionX;
+        joueur.dimensionY = pistForCanvas.startPositionY;
       }
       //le coin droit de la piste
-      if(distanceParcourueEnPx >= pistWidth && distanceParcourueEnPx<(pistWidth + pistHeight)){
-        joueur.dimensionX = pistWidth+startX;
-        joueur.dimensionY = (distanceParcourueEnPx-pistWidth)+startY;
+      if(pistForCanvas.isRightCorner(distanceParcourueEnPx)){
+        joueur.dimensionX = pistForCanvas.endPositionX;
+        joueur.dimensionY = (distanceParcourueEnPx-pistWidth)+pistForCanvas.startPositionY;
       }
       //le coin inférieure de la piste
-      if(distanceParcourueEnPx >= (pistWidth + pistHeight) && distanceParcourueEnPx<((pistWidth*2) + pistHeight)){
-        joueur.dimensionY = pistHeight +startY;
+      if(pistForCanvas.isBottomCorner(distanceParcourueEnPx)){
+        joueur.dimensionY = pistForCanvas.endPositionY;
         joueur.dimensionX = (pistWidth-(distanceParcourueEnPx-(pistWidth + pistHeight)));
+
       }
       //le coin gauche de la piste
-      if(distanceParcourueEnPx >= ((pistWidth*2) + pistHeight) && distanceParcourueEnPx<((pistWidth*2) + (pistHeight*2))){
-        joueur.dimensionX = startX;
+      if(pistForCanvas.isLeftCorner(distanceParcourueEnPx)){
+        joueur.dimensionX = pistForCanvas.startPositionX;
         joueur.dimensionY = (pistHeight-(distanceParcourueEnPx-((pistWidth*2) + pistHeight)));
       }
-
 
       //implementation des pit stops sur le canvas
       // console.log("testing if I can manage this with vehiculeCondition " + joueur.vehicule.vehiculeCondition + " for " + joueur.vehicule.type);
       if(! joueur.vehicule.vehiculeCondition){
-        tools.drawCanvasImage(myContext, "gas", baseImageDimensions*2, joueur.dimensionX, joueur.dimensionY-baseImageDimensions*2);
+        canvasManager.drawCanvasImage(myContext, "gas", pistForCanvas.baseImageDimensions, joueur.dimensionX, joueur.dimensionY-pistForCanvas.baseImageDimensions);
       }else{
         joueur.raceStart = true;
       }
+
+      //insertion des images pour les différents véhicules selon leur distanceParcourueEnPx
       // myContext.font = "20px Georgia";
       // myContext.fillText("3", canvasWidth/2, canvasHeight/2);
-      tools.drawCanvasImage(myContext, joueur.vehicule.type, baseImageDimensions, joueur.dimensionX, joueur.dimensionY);
+      canvasManager.drawCanvasImage(myContext, joueur.vehicule.type, pistForCanvas.baseImageDimensions, joueur.dimensionX, joueur.dimensionY);
 
     }
+    //placement des voitures carburées dans la ligne de Start, seulement fonctionnelle au début, une fois course commence les dimensionX et dimensionY sont recalculé en debut de la boucle
     if(joueur.raceStart){
-      //implementation des messages sur écran (klaxonne et race start finish)
-    
-
-      // console.log("testing if it enters here " + joueur.vehicule.start_condition);
-      joueur.dimensionX = startX;
-      joueur.dimensionY = startY;
-      joueur.raceStart = false;
-    }
-      // console.log("testing positions for "+joueur.vehicule.type + "="+joueur.dimensionX + "and" + joueur.dimensionY);
+       joueur.dimensionX = pistForCanvas.startPositionX;
+       joueur.dimensionY = pistForCanvas.startPositionY;
+    } 
   }
-
-
 };
 let myInterval = setInterval(animate, 1000); //Notre boucle de rafraîchissement.
-// let carImage = tools.insertCanvasImg("voiture", myContext);

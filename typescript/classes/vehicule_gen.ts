@@ -19,6 +19,7 @@ export default class Vehicule{
   protected _vehiculeCondition:boolean = false; //est-ce que le véhicule est en état de rouler
   isIncrease:boolean = true;
   isX:boolean = true;
+  
   static _start_condition:number = 0; //je vérifie que les réservoirs sont complets avant de commencer. Cela devient 3 quand  les 3 vehicules ont rempli leurs réservoir
   constructor(power:number, weight:number){
       this.power = power;
@@ -94,28 +95,37 @@ export default class Vehicule{
     //j'assume que la vitesse de la pompe de carburant est de 10 litre par seconde
     //je trouve combien de second il me faut pour faire le pleine
     let besoinTemps:number = besoinCarburant/10;
-    //je klaxonne quand la réservoir est rempli
+    //après avoir attendu autant que nécessaire, je lance mettre_du_carburant
     timeoutsArray.push(setTimeout(this.mettre_du_carburant, besoinTemps*1000, this));
   }
   mettre_du_carburant(vehicule:Vehicule):void{
-    // console.log("testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest");
+    //j'égalise le niveau de carburant selon la capacité de réservoir car on a attendu autant que nécessaire
     vehicule.niveau_de_carburant = vehicule._capacite_du_reservoir;
+
+    //je modifie le répère du vehicule comme étant "en état de conduire"
+    vehicule.vehiculeCondition = true; 
+
+    //j'incremente ma variable qui declencerait la course au début, cela se répète pendant la course sans avoir une influence
     Vehicule.increment_start_condition();
+
+    //je klaxonne quand la réservoir est rempli
     vehicule.klaxonne(vehicule);
 
   }
   klaxonne(vehicule:Vehicule):void{
     tools.show_message(`${vehicule.type} dit que c'est bon : ${vehicule._son_klaxonne}, Niveau de carburant = ${vehicule.niveau_de_carburant}`);
-    vehicule.vehiculeCondition = true; //vehicule est en etat de circuler
+    
+     //je détermine le start pour la course selon l'attribut static _start_condition qui atteint 3 une fois les 3 véhicules ont rempli leurs réservoir
     // tools.show_message(vehicule.start_condition);
-    if(vehicule.start_condition===3){
-      console.log("testing when do I enter here");
-      //staring the race in 3 seconds
+    if(vehicule.start_condition===3){/*
+      console.log("testing when do I enter here");*/
+      //starting the race in 1 second
+      //let countdown = setTimeout(Race.createRace, 1000);
+      //starting the race instantly
+      Race.createRace();
+      //putting start_condition of vehicule to 10 to ensure we don't reenter here
       vehicule.start_condition = 10;
-      let countdown = setTimeout(this.createRace, 1000);
     }
   }
-  createRace():any{
-    let race = new Race();
-  }
+  
 }

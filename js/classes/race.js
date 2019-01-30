@@ -21,8 +21,6 @@ define(["require", "exports", "../main", "../tools"], function (require, exports
             for (var _i = 0, participants_1 = participants; _i < participants_1.length; _i++) {
                 var participant = participants_1[_i];
                 if (participant.distance_parcourue >= Race._distance * Race._cycleCounter) {
-                    tools.show_message("" + participant.distance_parcourue);
-                    tools.show_message("" + Race._distance * Race._cycleCounter);
                     Race._finishCondition = true;
                 }
             }
@@ -39,7 +37,6 @@ define(["require", "exports", "../main", "../tools"], function (require, exports
                 for (var _i = 0, participants_3 = participants; _i < participants_3.length; _i++) {
                     var participant = participants_3[_i];
                     if (participant.vehicule.vehiculeCondition) {
-                        console.log(participant.vehicule.niveau_de_carburant);
                         var distanceParSeconde = participant.vehicule.vitesse_max / 360;
                         participant.distance_parcourue = distanceParSeconde;
                         participant.vehicule.niveau_de_carburant -= participant.vehicule.consommation;
@@ -53,8 +50,13 @@ define(["require", "exports", "../main", "../tools"], function (require, exports
                     Race.advance_participants(participants);
                     Race.finishRace(participants);
                 }
+                tools.show_message("testing the creation of each timeout " + counter);
+                counter++;
             }, 1000);
             main_1.timeoutsArray.push(currentStep);
+        };
+        Race.createRace = function () {
+            var race = new Race();
         };
         Race._distance = 10;
         Race._finishCondition = false;
@@ -63,4 +65,5 @@ define(["require", "exports", "../main", "../tools"], function (require, exports
         return Race;
     }());
     exports.default = Race;
+    var counter = 0;
 });
