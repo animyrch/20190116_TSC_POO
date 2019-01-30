@@ -1,12 +1,12 @@
 import tools = require("./tools");
 import Race from "./classes/race";
+import CanvasManager from "./classes/canvasManager";
+import PistForCanvas from "./classes/pistForCanvas";
 import Vehicle from "./classes/vehicule_gen";
 import Moto from "./classes/moto";
 import Voiture from "./classes/voiture";
 import Camion from "./classes/camion";
 import Participant from "./classes/participants";
-import CanvasManager from "./classes/canvasManager";
-import PistForCanvas from "./classes/pistForCanvas";
 // declare var $:any;
 import $ = require("jquery");
 //import {Moto, Voiture, Camion} from "./classes/vehicule_types"; //on peut importer plusieurs elements d'un autre fichier mais il est meilleur de faire un fichier par class meme si ce sont des sous-classes
@@ -73,7 +73,7 @@ let stopInterval = () =>{
 let myCanvas:any = document.getElementById("myCanvas");
 let myContext:any = myCanvas.getContext("2d");
 
-// j"instantie la classe CanvasManager pour manipuler le canvas 
+// j"instantie la classe CanvasManager pour manipuler le canvas
 export let canvasManager = new CanvasManager(myCanvas, myContext);
 canvasManager.manageCanvasErrors();
 let canvasWidth:number = canvasManager.width;
@@ -101,7 +101,7 @@ for(let joueur of joueurs){
  }
 //animation des images
 let animate = () =>{
-
+console.log("testing generation of timeouts "+timeoutsArray.length);
   for(let joueur of joueurs){
     // console.log("testing total distance " + Race._distance + "distance parcourue " + joueur.distance_parcourue);
     //je trouve le rapport entre distance total de Race et distance parcourue de joueur
@@ -109,9 +109,12 @@ let animate = () =>{
     //Je connais la distance total en px (getPistLength4Corners()). Avec ce taux, je peux trouver où en est le véhicule
     let distanceParcourueEnPx:number = pistForCanvas.getPistLength4Corners()/tauxDistanceParcourue;
 
+  // tools.show_message(`testing taux restant : ${tauxDistanceParcourue}`);
+  if(tauxDistanceParcourue <= 0.1){
+      // tools.show_message(`testing taux restant : ${tauxDistanceParcourue}`);
 
-  // console.log("testing rate of advance in px "+distanceParcourueEnPx);
-
+      Race._finishCondition = true;
+  }
 
     if(!Race._finishCondition){
 
@@ -128,30 +131,30 @@ let animate = () =>{
       //le coin supérieur de la piste
       if(pistForCanvas.isTopCorner(distanceParcourueEnPx)){
         //je peux integrer distanceParcourueEnPx au sein de joueur (participant) et
-        //je peux extraire le calcul de l'avancement dans pistForCanvas
-        joueur.dimensionX = distanceParcourueEnPx+pistForCanvas.startPositionX;
+        joueur.dimensionX = pistForCanvas.advanceUpperCorner(distanceParcourueEnPx);
         joueur.dimensionY = pistForCanvas.startPositionY;
       }
       //le coin droit de la piste
       if(pistForCanvas.isRightCorner(distanceParcourueEnPx)){
         joueur.dimensionX = pistForCanvas.endPositionX;
-        joueur.dimensionY = (distanceParcourueEnPx-pistWidth)+pistForCanvas.startPositionY;
+        joueur.dimensionY = pistForCanvas.advanceRightCorner(distanceParcourueEnPx);
+
       }
       //le coin inférieure de la piste
       if(pistForCanvas.isBottomCorner(distanceParcourueEnPx)){
         joueur.dimensionY = pistForCanvas.endPositionY;
-        joueur.dimensionX = (pistWidth-(distanceParcourueEnPx-(pistWidth + pistHeight)));
-
+        joueur.dimensionX = pistForCanvas.advanceBottomCorner(distanceParcourueEnPx);
       }
       //le coin gauche de la piste
       if(pistForCanvas.isLeftCorner(distanceParcourueEnPx)){
         joueur.dimensionX = pistForCanvas.startPositionX;
-        joueur.dimensionY = (pistHeight-(distanceParcourueEnPx-((pistWidth*2) + pistHeight)));
+        joueur.dimensionY = pistForCanvas.advanceLeftCorner(distanceParcourueEnPx);
       }
 
       //implementation des pit stops sur le canvas
       // console.log("testing if I can manage this with vehiculeCondition " + joueur.vehicule.vehiculeCondition + " for " + joueur.vehicule.type);
-      if(! joueur.vehicule.vehiculeCondition){
+      if(!joueur.vehicule.vehiculeCondition){
+        // console.log("testing way to prevent last gas fill "+ joueur.raceStart)
         canvasManager.drawCanvasImage(myContext, "gas", pistForCanvas.baseImageDimensions, joueur.dimensionX, joueur.dimensionY-pistForCanvas.baseImageDimensions);
       }else{
         joueur.raceStart = true;
@@ -167,7 +170,22 @@ let animate = () =>{
     if(joueur.raceStart){
        joueur.dimensionX = pistForCanvas.startPositionX;
        joueur.dimensionY = pistForCanvas.startPositionY;
-    } 
+       // console.log("testing start condition value" + joueur.vehicule.start_condition);
+    }
+    if(joueur.distance_parcourue >= Race._distance){
+        /*tools.show_message(`${participant.distance_parcourue}`);
+        */
+        Race._finishCondition = true;
+    }
+    if(joueur.vehicule.start_condition===3){
+      console.log("testing when do I enter here");
+      //starting the race in 1 second
+      let countdown = setTimeout(Race.createRace, 1000);
+      //starting the race instantly
+      // let race = new Race;
+      //putting start_condition of vehicule to 10 to ensure we don't reenter here
+      joueur.vehicule.start_condition = 10;
+    }
   }
 };
 let myInterval = setInterval(animate, 1000); //Notre boucle de rafraîchissement.

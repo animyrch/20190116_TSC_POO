@@ -20,14 +20,14 @@ define(["require", "exports", "../main", "../tools"], function (require, exports
         Race.finishRace = function (participants) {
             for (var _i = 0, participants_1 = participants; _i < participants_1.length; _i++) {
                 var participant = participants_1[_i];
-                if (participant.distance_parcourue >= Race._distance * Race._cycleCounter) {
+                if (participant.distance_parcourue >= Race._distance) {
                     Race._finishCondition = true;
                 }
             }
             for (var _a = 0, participants_2 = participants; _a < participants_2.length; _a++) {
                 var participant = participants_2[_a];
                 if (Race._finishCondition == true) {
-                    tools.show_message(participant.name + " = " + (participant.distance_parcourue - Race._distance * Race._cycleCounter));
+                    tools.show_message(participant.name + " = " + (participant.distance_parcourue - Race._distance));
                     Race._rank++;
                 }
             }
@@ -46,9 +46,9 @@ define(["require", "exports", "../main", "../tools"], function (require, exports
                         }
                     }
                 }
+                Race.finishRace(participants);
                 if (Race._finishCondition === false) {
                     Race.advance_participants(participants);
-                    Race.finishRace(participants);
                 }
                 tools.show_message("testing the creation of each timeout " + counter);
                 counter++;
@@ -60,7 +60,6 @@ define(["require", "exports", "../main", "../tools"], function (require, exports
         };
         Race._distance = 10;
         Race._finishCondition = false;
-        Race._cycleCounter = 1;
         Race._rank = 1;
         return Race;
     }());

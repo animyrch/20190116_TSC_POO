@@ -1,4 +1,4 @@
-define(["require", "exports", "./race", "../main", "../tools"], function (require, exports, race_1, main_1, tools) {
+define(["require", "exports", "../main", "../tools"], function (require, exports, main_1, tools) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Vehicule = (function () {
@@ -12,8 +12,6 @@ define(["require", "exports", "./race", "../main", "../tools"], function (requir
             };
             this._niveau_de_carburant = 0;
             this._vehiculeCondition = false;
-            this.isIncrease = true;
-            this.isX = true;
             this.power = power;
             this.weight = weight;
         }
@@ -133,10 +131,6 @@ define(["require", "exports", "./race", "../main", "../tools"], function (requir
         };
         Vehicule.prototype.klaxonne = function (vehicule) {
             tools.show_message(vehicule.type + " dit que c'est bon : " + vehicule._son_klaxonne + ", Niveau de carburant = " + vehicule.niveau_de_carburant);
-            if (vehicule.start_condition === 3) {
-                race_1.default.createRace();
-                vehicule.start_condition = 10;
-            }
         };
         Vehicule._start_condition = 0;
         return Vehicule;

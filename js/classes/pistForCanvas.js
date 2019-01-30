@@ -40,6 +40,29 @@ define(["require", "exports", "../main"], function (require, exports, main_1) {
             this.getPistLength4Corners = function () {
                 return (_this.width * 2) + (_this.height * 2);
             };
+            this.advanceUpperCorner = function (distance) {
+                var horizontalOffset = _this.startPositionX;
+                var distanceTotal = distance + horizontalOffset;
+                return distanceTotal;
+            };
+            this.advanceRightCorner = function (distance) {
+                var verticalOffset = _this.startPositionY;
+                var distanceTotal = (distance - _this.getPistLength1Corner()) + verticalOffset;
+                return distanceTotal;
+            };
+            this.advanceBottomCorner = function (distance) {
+                var distanceTotal = _this.width - (distance - _this.getPistLength2Corners());
+                return distanceTotal;
+            };
+            this.advanceLeftCorner = function (distance) {
+                var distanceTotal = _this.height - (distance - _this.getPistLength3Corners());
+                var verticalOffset = _this.startPositionY;
+                console.log("testing my pos Y " + distanceTotal);
+                if (distanceTotal < verticalOffset) {
+                    distanceTotal = verticalOffset;
+                }
+                return distanceTotal;
+            };
         }
         Object.defineProperty(PistForCanvas.prototype, "valeurBase", {
             get: function () {

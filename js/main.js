@@ -1,4 +1,4 @@
-define(["require", "exports", "./tools", "./classes/race", "./classes/moto", "./classes/voiture", "./classes/camion", "./classes/participants", "./classes/canvasManager", "./classes/pistForCanvas"], function (require, exports, tools, race_1, moto_1, voiture_1, camion_1, participants_1, canvasManager_1, pistForCanvas_1) {
+define(["require", "exports", "./tools", "./classes/race", "./classes/canvasManager", "./classes/pistForCanvas", "./classes/moto", "./classes/voiture", "./classes/camion", "./classes/participants"], function (require, exports, tools, race_1, canvasManager_1, pistForCanvas_1, moto_1, voiture_1, camion_1, participants_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     tools.show_message("Testing use of separate files");
@@ -62,29 +62,33 @@ define(["require", "exports", "./tools", "./classes/race", "./classes/moto", "./
         joueur.dimensionY = pistForCanvas.startPositionY;
     }
     var animate = function () {
+        console.log("testing generation of timeouts " + exports.timeoutsArray.length);
         for (var _i = 0, joueurs_2 = exports.joueurs; _i < joueurs_2.length; _i++) {
             var joueur = joueurs_2[_i];
             var tauxDistanceParcourue = race_1.default._distance / joueur.distance_parcourue;
             var distanceParcourueEnPx = pistForCanvas.getPistLength4Corners() / tauxDistanceParcourue;
+            if (tauxDistanceParcourue <= 0.1) {
+                race_1.default._finishCondition = true;
+            }
             if (!race_1.default._finishCondition) {
                 myContext.clearRect(0, 0, myCanvas.width, myCanvas.height);
                 myContext.rect(pisteValeurBase, pisteValeurBase, pistWidth, pistHeight);
                 myContext.stroke();
                 if (pistForCanvas.isTopCorner(distanceParcourueEnPx)) {
-                    joueur.dimensionX = distanceParcourueEnPx + pistForCanvas.startPositionX;
+                    joueur.dimensionX = pistForCanvas.advanceUpperCorner(distanceParcourueEnPx);
                     joueur.dimensionY = pistForCanvas.startPositionY;
                 }
                 if (pistForCanvas.isRightCorner(distanceParcourueEnPx)) {
                     joueur.dimensionX = pistForCanvas.endPositionX;
-                    joueur.dimensionY = (distanceParcourueEnPx - pistWidth) + pistForCanvas.startPositionY;
+                    joueur.dimensionY = pistForCanvas.advanceRightCorner(distanceParcourueEnPx);
                 }
                 if (pistForCanvas.isBottomCorner(distanceParcourueEnPx)) {
                     joueur.dimensionY = pistForCanvas.endPositionY;
-                    joueur.dimensionX = (pistWidth - (distanceParcourueEnPx - (pistWidth + pistHeight)));
+                    joueur.dimensionX = pistForCanvas.advanceBottomCorner(distanceParcourueEnPx);
                 }
                 if (pistForCanvas.isLeftCorner(distanceParcourueEnPx)) {
                     joueur.dimensionX = pistForCanvas.startPositionX;
-                    joueur.dimensionY = (pistHeight - (distanceParcourueEnPx - ((pistWidth * 2) + pistHeight)));
+                    joueur.dimensionY = pistForCanvas.advanceLeftCorner(distanceParcourueEnPx);
                 }
                 if (!joueur.vehicule.vehiculeCondition) {
                     exports.canvasManager.drawCanvasImage(myContext, "gas", pistForCanvas.baseImageDimensions, joueur.dimensionX, joueur.dimensionY - pistForCanvas.baseImageDimensions);
@@ -97,6 +101,14 @@ define(["require", "exports", "./tools", "./classes/race", "./classes/moto", "./
             if (joueur.raceStart) {
                 joueur.dimensionX = pistForCanvas.startPositionX;
                 joueur.dimensionY = pistForCanvas.startPositionY;
+            }
+            if (joueur.distance_parcourue >= race_1.default._distance) {
+                race_1.default._finishCondition = true;
+            }
+            if (joueur.vehicule.start_condition === 3) {
+                console.log("testing when do I enter here");
+                var countdown = setTimeout(race_1.default.createRace, 1000);
+                joueur.vehicule.start_condition = 10;
             }
         }
     };

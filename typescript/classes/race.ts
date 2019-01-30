@@ -6,7 +6,6 @@ export default class Race{
   protected _participants:Participant[];
   static _distance:number = 10; //de type km
   static _finishCondition:boolean = false;
-  static _cycleCounter:number = 1;
   static _rank:number = 1;
 
   constructor(){
@@ -23,23 +22,16 @@ export default class Race{
   }
   static finishRace(participants:Participant[]):void{
     for(let participant of participants){
-      if(participant.distance_parcourue >= Race._distance*Race._cycleCounter){
+      if(participant.distance_parcourue >= Race._distance){
           /*tools.show_message(`${participant.distance_parcourue}`);
-          tools.show_message(`${Race._distance*Race._cycleCounter}`);
           */
           Race._finishCondition = true;
-
-
-
       }
     }
     for(let participant of participants){
       if(Race._finishCondition == true){
-
-          tools.show_message(`${participant.name} = ${participant.distance_parcourue - Race._distance*Race._cycleCounter}`);
+          tools.show_message(`${participant.name} = ${participant.distance_parcourue - Race._distance}`);
           Race._rank++;
-
-
       }
     }
   }
@@ -60,18 +52,19 @@ export default class Race{
             //si, selon la consommation de base, à la prochaine boucle, le vehicule n'aura plus de carburant, je fais un pit-stop
             if(participant.vehicule.niveau_de_carburant -  participant.vehicule.consommation <= 0){
               //je modifie le répère du vehicule comme étant "pas dans l'état de conduire"
-              participant.vehicule.vehiculeCondition = false;
+              // console.log("testing possiblity to prevent last gas fill "+ Race._finishCondition);
 
+              participant.vehicule.vehiculeCondition = false;
               participant.vehicule.pit_stop();
             }
           }
 
         }
 
+        Race.finishRace(participants);
         if(Race._finishCondition === false){
           Race.advance_participants(participants);
 
-          Race.finishRace(participants);
         }
 
         tools.show_message(`testing the creation of each timeout ${counter}`);
@@ -80,10 +73,9 @@ export default class Race{
       timeoutsArray.push(currentStep);
     }
 
+
   static createRace():void{
     let race = new Race();
   }
-
-
   }
 let counter:number = 0;

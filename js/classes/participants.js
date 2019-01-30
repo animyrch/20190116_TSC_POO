@@ -4,9 +4,7 @@ define(["require", "exports"], function (require, exports) {
     var Participant = (function () {
         function Participant(name, vehicule) {
             this._distance_parcourue = 0;
-            this.raceStart = false;
-            this.isIncrease = true;
-            this.isX = true;
+            this._raceStart = false;
             this.name = name;
             this.vehicule = vehicule;
         }
@@ -56,6 +54,16 @@ define(["require", "exports"], function (require, exports) {
             },
             set: function (direction) {
                 this._dimensionY = direction;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Participant.prototype, "raceStart", {
+            get: function () {
+                return this._raceStart;
+            },
+            set: function (value) {
+                this._raceStart = value;
             },
             enumerable: true,
             configurable: true
