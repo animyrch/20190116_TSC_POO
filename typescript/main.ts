@@ -109,13 +109,6 @@ console.log("testing generation of timeouts "+timeoutsArray.length);
     //Je connais la distance total en px (getPistLength4Corners()). Avec ce taux, je peux trouver où en est le véhicule
     let distanceParcourueEnPx:number = pistForCanvas.getPistLength4Corners()/tauxDistanceParcourue;
 
-  // tools.show_message(`testing taux restant : ${tauxDistanceParcourue}`);
-  if(tauxDistanceParcourue <= 0.1){
-      // tools.show_message(`testing taux restant : ${tauxDistanceParcourue}`);
-
-      Race._finishCondition = true;
-  }
-
     if(!Race._finishCondition){
 
       //nettoyage du canvas

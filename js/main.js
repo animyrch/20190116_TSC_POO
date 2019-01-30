@@ -67,9 +67,6 @@ define(["require", "exports", "./tools", "./classes/race", "./classes/canvasMana
             var joueur = joueurs_2[_i];
             var tauxDistanceParcourue = race_1.default._distance / joueur.distance_parcourue;
             var distanceParcourueEnPx = pistForCanvas.getPistLength4Corners() / tauxDistanceParcourue;
-            if (tauxDistanceParcourue <= 0.1) {
-                race_1.default._finishCondition = true;
-            }
             if (!race_1.default._finishCondition) {
                 myContext.clearRect(0, 0, myCanvas.width, myCanvas.height);
                 myContext.rect(pisteValeurBase, pisteValeurBase, pistWidth, pistHeight);
